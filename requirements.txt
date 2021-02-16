@@ -1,0 +1,4 @@
+opencv-python>=3.4
+pygame
+numpy
+-e .
