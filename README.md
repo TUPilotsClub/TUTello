@@ -22,9 +22,11 @@ Using a virtual environment greatly reduces issues with installing packages. It 
 
 2. Navigate to the root directory, `TUTello`
 
-3. Enter the command `python -m venv venv`
+3. Enter the command `python -m venv venv` (or try `python3`)
 
 4. `./venv/Scripts/activate` (you might need to use `activate.bat` or `activate.ps1`)
+
+   - On Mac, do `. venv/bin/activate`
 
 5. `pip install -r requirements.txt`
 
