@@ -58,9 +58,9 @@ Here are the highlights:
 
 There are a number of different components to the codebase
 
-1. `djitellopy`
+1. `drone`
    - contains `tello.py` which houses the Tello class to control the drone
-   - import: `from djitellopy.tello import Tello`
+   - import: `from drone.tello import Tello`
    - instantiate: `tello = Tello()`
    - `tello.connect()` initializes the drone
    - `tello.takeoff()` and `tello.land()` cause the drone to takeoff and land
@@ -68,9 +68,13 @@ There are a number of different components to the codebase
 
 2. `gui`
    - contains classes for creating a pygame window with the Tello video feed
-   - `VideoFeed` can perform some filter on the Tello video in `get_frame()`
+   - `GUI` accepts a list of components to display
    - `SimpleGUI` accepts a `VideoFeed` and creates a video window
    
+2. `video`
+   - `VideoFeed` is a base class for handling video streams
+      - child classes can perform some filter on the Tello video in `get_frame()`
+
 3. `controller`
    - contains classes for controlling the movement of the Tello
    - `SimpleController` gets keyboard input from pygame and sends rc commands to the Tello

@@ -1,4 +1,6 @@
 opencv-python>=3.4
 pygame
 numpy
+matplotlib
+imutils
 -e .

@@ -1,2 +1,2 @@
+from gui.gui import GUI
 from gui.simplegui import SimpleGUI
-from gui.videofeed import VideoFeed

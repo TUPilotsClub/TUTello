@@ -27,11 +27,11 @@ class Tello:
     FORMATTER = logging.Formatter('%(filename)s - %(lineno)d - %(message)s')
     HANDLER.setFormatter(FORMATTER)
 
-    LOGGER = logging.getLogger('djitellopy')
+    LOGGER = logging.getLogger('drone')
 
     LOGGER.addHandler(HANDLER)
     LOGGER.setLevel(logging.INFO)
-    # use logging.getLogger('djitellopy').setLevel(logging.<LEVEL>) in YOUR CODE
+    # use logging.getLogger('drone').setLevel(logging.<LEVEL>) in YOUR CODE
     # to only receive logs of the desired level and higher
 
     # Video stream, server socket

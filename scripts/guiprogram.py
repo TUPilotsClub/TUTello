@@ -1,6 +1,6 @@
-from djitellopy.tello import Tello
-from gui.simplegui import SimpleGUI
-from gui.videofeed import VideoFeed
+from drone.tello import Tello
+from gui.simplegui import GUI
+from video.videofeed import VideoFeed
 from controller.simplecontroller import SimpleController
 
 print("started")
@@ -9,7 +9,7 @@ tello.connect()
 print("video")
 video = VideoFeed(tello)
 print("gui")
-gui = SimpleGUI(video)
+gui = GUI(video)
 print("controller")
 controller = SimpleController(tello, gui)
 gui.run()

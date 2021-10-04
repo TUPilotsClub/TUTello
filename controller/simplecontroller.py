@@ -1,42 +1,54 @@
 from gui.pyevents import PyEvents
+from .controller import Controller
+from drone import Tello
 import pygame
 import threading
 import time
 
-class SimpleController:
-    # Speed of the drone
-    S = 60
-    
-    def __init__(self, tello, gui):
-        if not isinstance(gui, PyEvents):
-            raise TypeError("Parameter 'gui' should be of type SimpleGUI")
-            
-        self.tello = tello
+class SimpleController(Controller):
+    UP_DIR = "up"
+    DOWN_DIR = "down"
+    LEFT_DIR = "left"
+    RIGHT_DIR = "right"
+    W_DIR = "w"
+    S_DIR = "s"
+    A_DIR = "a"
+    D_DIR = "d"
+
+    def __init__(self, tello: Tello, gui: PyEvents):
+        super().__init__(tello)
         
-        self.for_back_velocity = 0
-        self.left_right_velocity = 0
-        self.up_down_velocity = 0
-        self.yaw_velocity = 0
         self.speed = 10
         self.send_rc_control = False
+
+        self.keys = {
+            self.UP_DIR: False,
+            self.DOWN_DIR: False,
+            self.LEFT_DIR: False,
+            self.RIGHT_DIR: False,
+            self.W_DIR: False,
+            self.S_DIR: False,
+            self.A_DIR: False,
+            self.D_DIR: False
+        }
         
-        gui.subscribe_keydown(self.forward, pygame.K_UP)
-        gui.subscribe_keydown(self.backward, pygame.K_DOWN)
-        gui.subscribe_keydown(self.right, pygame.K_RIGHT)
-        gui.subscribe_keydown(self.left, pygame.K_LEFT)
-        gui.subscribe_keydown(self.yaw_clck, pygame.K_d)
-        gui.subscribe_keydown(self.yaw_count_clck, pygame.K_a)
-        gui.subscribe_keydown(self.upward, pygame.K_w)
-        gui.subscribe_keydown(self.downward, pygame.K_s)
+        gui.subscribe_keydown(self.pitchEvents(self.UP_DIR, True), pygame.K_UP)
+        gui.subscribe_keydown(self.pitchEvents(self.DOWN_DIR, True), pygame.K_DOWN)
+        gui.subscribe_keydown(self.rollEvents(self.RIGHT_DIR, True), pygame.K_RIGHT)
+        gui.subscribe_keydown(self.rollEvents(self.LEFT_DIR, True), pygame.K_LEFT)
+        gui.subscribe_keydown(self.thrustEvents(self.W_DIR, True), pygame.K_w)
+        gui.subscribe_keydown(self.thrustEvents(self.S_DIR, True), pygame.K_s)
+        gui.subscribe_keydown(self.yawEvents(self.A_DIR, True), pygame.K_a)
+        gui.subscribe_keydown(self.yawEvents(self.D_DIR, True), pygame.K_d)
         
-        gui.subscribe_keyup(self.forward, pygame.K_DOWN)
-        gui.subscribe_keyup(self.backward, pygame.K_UP)
-        gui.subscribe_keyup(self.right, pygame.K_LEFT)
-        gui.subscribe_keyup(self.left, pygame.K_RIGHT)
-        gui.subscribe_keyup(self.yaw_clck, pygame.K_a)
-        gui.subscribe_keyup(self.yaw_count_clck, pygame.K_d)
-        gui.subscribe_keyup(self.upward, pygame.K_s)
-        gui.subscribe_keyup(self.downward, pygame.K_w)
+        gui.subscribe_keyup(self.pitchEvents(self.UP_DIR, False), pygame.K_UP)
+        gui.subscribe_keyup(self.pitchEvents(self.DOWN_DIR, False), pygame.K_DOWN)
+        gui.subscribe_keyup(self.rollEvents(self.RIGHT_DIR, False), pygame.K_RIGHT)
+        gui.subscribe_keyup(self.rollEvents(self.LEFT_DIR, False), pygame.K_LEFT)
+        gui.subscribe_keyup(self.thrustEvents(self.W_DIR, False), pygame.K_w)
+        gui.subscribe_keyup(self.thrustEvents(self.S_DIR, False), pygame.K_s)
+        gui.subscribe_keyup(self.yawEvents(self.A_DIR, False), pygame.K_a)
+        gui.subscribe_keyup(self.yawEvents(self.D_DIR, False), pygame.K_d)
         
         gui.subscribe_keyup(self.takeoff, pygame.K_t)
         gui.subscribe_keyup(self.land, pygame.K_l)
@@ -47,64 +59,26 @@ class SimpleController:
         update_thread.Daemon = True
         update_thread.start()
         
-            
-    def forward(self):
-        if self.for_back_velocity > 0:
-            return
-        self.for_back_velocity += self.S
-            
-    def backward(self):
-        if self.for_back_velocity < 0:
-            return
-        self.for_back_velocity -= self.S
-        
-    def right(self):
-        if self.left_right_velocity > 0:
-            return
-        self.left_right_velocity += self.S
-        
-    def left(self):
-        if self.left_right_velocity > 0:
-            return
-        self.left_right_velocity -= self.S
-        
-    def yaw_clck(self):
-        if self.yaw_velocity > 0:
-            return
-        self.yaw_velocity += self.S
-        
-    def yaw_count_clck(self):
-        if self.yaw_velocity < 0:
-            return
-        self.yaw_velocity -= self.S
-        
-    def upward(self):
-        if self.up_down_velocity > 0:
-            return
-        self.up_down_velocity += self.S
-        
-    def downward(self):
-        if self.up_down_velocity < 0:
-            return
-        self.up_down_velocity -= self.S
-        
-    def takeoff(self):
-        print("takeoff")
-        self.tello.takeoff()
-        self.send_rc_control = True
-        
-    def land(self):
-        print("land")
-        self.tello.land()
-        self.send_rc_control = False
-        
-    def destruct(self):
-        self.tello.end()
-        
-    def update(self):
-        """ Update routine. Send velocities to Tello."""
-        while (True):
-            if self.send_rc_control:
-                self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
-                                           self.yaw_velocity)
-            time.sleep(0.05)
+    def pitchEvents(self, key, val):
+        def eventFunc():
+            self.keys[key] = val
+            self.setPitch((self.keys[self.UP_DIR] - self.keys[self.DOWN_DIR]) * self.speed)
+        return eventFunc
+
+    def rollEvents(self, key, val):
+        def eventFunc():
+            self.keys[key] = val
+            self.setRoll((self.keys[self.RIGHT_DIR] - self.keys[self.LEFT_DIR]) * self.speed)
+        return eventFunc
+
+    def thrustEvents(self, key, val):
+        def eventFunc():
+            self.keys[key] = val
+            self.setThrust((self.keys[self.W_DIR] - self.keys[self.S_DIR]) * self.speed)
+        return eventFunc
+
+    def yawEvents(self, key, val):
+        def eventFunc():
+            self.keys[key] = val
+            self.setYaw((self.keys[self.D_DIR] - self.keys[self.A_DIR]) * self.speed)
+        return eventFunc

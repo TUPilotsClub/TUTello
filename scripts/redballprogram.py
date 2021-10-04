@@ -1,15 +1,14 @@
-from djitellopy.tello import Tello
+from drone.tello import Tello
 from gui.simplegui import SimpleGUI
-from gui.redballvideo import RedBallVideo
+from video.redballvideo import RedBallVideo
 from controller.simplecontroller import SimpleController
+import sys
 
-print("started")
-tello = Tello()
-tello.connect()
-print("video")
-video = RedBallVideo(tello)
-print("gui")
+if sys.argv[1] != "webcam":
+    tello = Tello()
+    tello.connect()
+    video = RedBallVideo(tello)
+else:
+    video = RedBallVideo(None)
 gui = SimpleGUI(video)
-print("controller")
-controller = SimpleController(tello, gui)
 gui.run()
