@@ -59,25 +59,30 @@ Here are the highlights:
 There are a number of different components to the codebase
 
 1. `drone`
-   - contains `tello.py` which houses the Tello class to control the drone
-   - import: `from drone.tello import Tello`
-   - instantiate: `tello = Tello()`
-   - `tello.connect()` initializes the drone
-   - `tello.takeoff()` and `tello.land()` cause the drone to takeoff and land
-   - `tello.send_rc_control(<roll_speed>,<pitch_speed>,<thrust_speed>,<yaw_speed>)` controls the movement
+   - contains `tello.py` which houses the Tello class to control the drone.
+   - import: `from drone.tello import Tello`.
+   - instantiate: `tello = Tello()`.
+   - `tello.connect()` initializes the drone.
+   - `tello.takeoff()` and `tello.land()` cause the drone to takeoff and land.
+   - `tello.send_rc_control(<roll_speed>,<pitch_speed>,<thrust_speed>,<yaw_speed>)` controls the movement.
 
 2. `gui`
-   - contains classes for creating a pygame window with the Tello video feed
-   - `GUI` accepts a list of components to display
-   - `SimpleGUI` accepts a `VideoFeed` and creates a video window
+   - contains classes for creating a pygame window with the Tello video feed.
+   - `GUI` accepts a list of components to display and handles key events.
+   - `SimpleGUI` accepts a `VideoFeed` and creates a `VideoComponent` to be displayed in the `GUI`.
    
 2. `video`
-   - `VideoFeed` is a base class for handling video streams
-      - child classes can perform some filter on the Tello video in `get_frame()`
+   - `VideoFeed` is a base class for handling video streams.
+      - child classes can perform some filter on the Tello video in `get_frame()`.
+   - `RedballVideo` is a `VideoFeed` which uses image processing to identify red objects.
+   - `FacetrackVideo`is a `VideoFeed` which uses a library to track faces.
 
 3. `controller`
-   - contains classes for controlling the movement of the Tello
-   - `SimpleController` gets keyboard input from pygame and sends rc commands to the Tello
+   - contains classes for controlling the movement of the Tello.
+   - `Controller` is a base class for sending rc commands to the Tello.
+   - `SimpleController` gets keyboard input from pygame and controls movement.
+   - `Telemetry` is an interface to get telemetry data from the Tello.
+      - Child classes can be used to get telemetry from other sources (like video)
    
 4. `scripts`
    - various scripts that utilize the above modules
