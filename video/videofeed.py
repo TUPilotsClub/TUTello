@@ -9,7 +9,7 @@ class VideoFeed:
         self.webcamCapture = cv2.VideoCapture(0)
 
     def get_frame(self):
-        if self.tello:
+        if self.tello != None:
             if not self.frame_read:
                 self.frame_read = self.tello.get_frame_read()
             return self.frame_read.frame
