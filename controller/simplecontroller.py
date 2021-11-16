@@ -1,4 +1,5 @@
 from gui.pyevents import PyEvents
+from gui.simplegui import SimpleGUI
 from .controller import Controller
 from drone import Tello
 import pygame
@@ -16,9 +17,9 @@ class SimpleController(Controller):
     D_DIR = "d"
 
     def __init__(self, tello: Tello, gui: PyEvents):
-        super().__init__(tello)
+        super(SimpleController, self).__init__(tello)
         
-        self.speed = 10
+        self.speed = 50
         self.send_rc_control = False
 
         self.keys = {
@@ -55,9 +56,9 @@ class SimpleController(Controller):
         
         gui.subscribe_destructor(self.destruct)
         
-        update_thread = threading.Thread(target=self.update, args=())
-        update_thread.Daemon = True
-        update_thread.start()
+        # update_thread = threading.Thread(target=self.update, args=())
+        # update_thread.Daemon = True
+        # update_thread.start()
         
     def pitchEvents(self, key, val):
         def eventFunc():

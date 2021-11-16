@@ -83,7 +83,10 @@ class GUI(PyEvents):
         try:
             # Call it always before finishing. To deallocate resources.
             for func in self.destructor_subs:
-                func()
+                try:
+                    func()
+                except:
+                    print("func couldn't terminate", func)
         except:
             print("Unexpected error:", sys.exc_info())
             sys.exit(1)

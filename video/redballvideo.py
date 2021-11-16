@@ -1,3 +1,4 @@
+from controller.tracktelemetry import TrackTelemetry
 from drone.tello import Tello
 import matplotlib.pyplot as plt
 from .videofeed import VideoFeed
@@ -6,11 +7,12 @@ import imutils
 import numpy as np
 
 class RedBallVideo(VideoFeed):
-    def __init__(self, tello: Tello):
+    def __init__(self, tello: Tello, telemetry: TrackTelemetry):
         super().__init__(tello)
             
         self.counter = 0
         self.frame_read = None
+        self.telemetry = telemetry
             
     def get_frame(self):
         self.img = super().get_frame()
@@ -87,6 +89,7 @@ class RedBallVideo(VideoFeed):
         # compute the center of the contour
         M = cv2.moments(c)
         if M["m00"] == 0:
+            self.telemetry.target = (0,0)
             return
         cX = int(M["m10"] / M["m00"])
         cY = int(M["m01"] / M["m00"])
@@ -95,3 +98,4 @@ class RedBallVideo(VideoFeed):
         cv2.circle(self.filtered, (cX, cY), 7, (255, 255, 255), -1)
         cv2.putText(self.filtered, "center", (cX - 20, cY - 20),
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        self.telemetry.target = (cX / self.img.shape[1] - 0.5)*2, (cY / self.img.shape[0] - 0.5)*2

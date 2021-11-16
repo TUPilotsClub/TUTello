@@ -13,11 +13,16 @@ class Controller:
         self._thrust_mag = 0
         self._yaw_mag = 0
         self._send_rc_control = False
+
+        self.update_func = None
         
+        self._kill_thread = threading.Event()
         self._update_thread = threading.Thread(target=self.update, args=())
         self._update_thread.Daemon = True
         self._update_thread.start()
-        
+
+    def isKilled(self):
+        return self._kill_thread.is_set()
             
     def addPitch(self, speed):
         self._pitch_mag += speed
@@ -66,12 +71,18 @@ class Controller:
         self._send_rc_control = False
         
     def destruct(self):
-        self.tello.end()
+        print("controller destruct")
+        self._kill_thread.set()
+        if self.tello != None:
+            self.tello.end()
         
     def update(self):
         """ Update routine. Send velocities to Tello."""
-        while (True):
+        print("update thread", not self.isKilled())
+        while not self.isKilled():
             if self._send_rc_control:
                 self.tello.send_rc_control(self._roll_mag, self._pitch_mag, self._thrust_mag,
                                            self._yaw_mag)
+            if self.update_func != None:
+                self.update_func()
             time.sleep(self.COMMAND_FREQ)

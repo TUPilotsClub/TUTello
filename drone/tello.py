@@ -772,10 +772,12 @@ class Tello:
 
     def end(self):
         """Call this method when you want to end the tello object"""
-        if self.is_flying:
-            self.land()
         if self.stream_on:
+            print("stream off")
             self.streamoff()
+        if self.is_flying:
+            print("tello land")
+            self.land()
         if self.background_frame_read is not None:
             self.background_frame_read.stop()
         if self.cap is not None:
@@ -796,9 +798,10 @@ class BackgroundFrameRead:
         tello.cap = cv2.VideoCapture(address)
         self.cap = tello.cap
 
+        print("cap read")
         if not self.cap.isOpened():
             self.cap.open(address)
-
+            print("opened")
         self.grabbed, self.frame = self.cap.read()
         self.stopped = False
         print("bfr init done")
